@@ -7,29 +7,49 @@ Vue.use(VueAxios,axios)
 new Vue({
     el: '#zad',
     data: {
-      students: [],
-      search:'',
-      usd:0,
-      money:'',
-      curr: []
+      regions: [],
+      city:[],
+      gym:[],
+      selectedRegion:'',
+      selectedCity:'',
     },
-    mounted: function(){
-      Vue.axios.get("http://46.101.212.195:3000/students").then((response) =>{
-        console.log(response.data)
-        this.students = response.data;
-      })
 
-      Vue.axios.get("http://apilayer.net/api/live?access_key=e5f9f31b0eb758ba092f2089065089e4&currencies=UAH,EUR&source=USD&format=1").then((response) =>{
-        console.log(response.data)
-        this.curr = response.data;
+    mounted: function(){
+     
+      Vue.axios.post("https://api.novaposhta.ua/v2.0/json/",{
+          "apiKey": "a7e789fde9d8eb6561e499f1adc0e6d3",
+          "modelName": "Address",
+          "calledMethod": "getAreas",
+          "methodProperties": {}
       })
+      .then((response) => {
+        this.regions = response.data.data;
+        this.mount=!this.mount;
+      }),
+      Vue.axios.post("https://api.novaposhta.ua/v2.0/json/",{
+        "apiKey": "a7e789fde9d8eb6561e499f1adc0e6d3",
+        "modelName": "Address",
+        "calledMethod": "getCities",
+        "methodProperties": {}
+    })
+    .then((response) => {
+      this.city = response.data.data;
+      this.mount=!this.mount;
+    })
+    
     },
     methods: {
-      clickme: function(id){
-        alert("Ok");
-        this.students = this.students.filter((element) => { 
-          return element.id !== id;
-        });
+      findWare: function(){
+        Vue.axios.post("https://api.novaposhta.ua/v2.0/json/",{
+          "apiKey": "a7e789fde9d8eb6561e499f1adc0e6d3",
+          "modelName": "Address",
+          "calledMethod": "getWarehouses",
+          "methodProperties": {"CityName":this.selectedCity}
+      })
+      .then((response) => {
+        this.gym = response.data.data;
+        this.mount=!this.mount;
+      })
       }
     },
 });
